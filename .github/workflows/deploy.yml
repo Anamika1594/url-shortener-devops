@@ -1,0 +1,42 @@
+name: Deploy URL Shortener
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted  # Uses YOUR laptop!
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Stop old container
+      run: |
+        cd ${{ github.workspace }}
+        docker-compose down || true
+    
+    - name: Build Docker image
+      run: |
+        cd ${{ github.workspace }}
+        docker-compose build
+    
+    - name: Run tests
+      run: |
+        cd ${{ github.workspace }}
+        docker-compose up -d
+        sleep 5
+        curl -f http://localhost:5000 || exit 1
+        docker-compose down
+    
+    - name: Deploy - Start container
+      run: |
+        cd ${{ github.workspace }}
+        docker-compose up -d
+    
+    - name: Verify deployment
+      run: |
+        sleep 5
+        curl -f http://localhost:5000 || exit 1
+        echo "✅ Deployment successful!"
