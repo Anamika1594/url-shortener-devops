@@ -1,0 +1,20 @@
+name: URL Shortener CI/CD
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest   # GitHub runner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: docker build -t url-shortener .
+
+      - name: Run container
+        run: docker run -d -p 5000:5000 url-shortener
